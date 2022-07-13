@@ -1,17 +1,24 @@
+const fs = require('fs');
+const process = require('process');
+
+function log(str) {
+    fs.writeSync(process.stdout.fd, str + "\n");
+}
+
 module.exports = exports = class {
     #testLineNumber = 0;
 
     #testLine(ok, description, annotation) {
         this.#testLineNumber++;
-        console.log(`${ok ? "ok" : "not ok"} ${this.#testLineNumber} - ${description}${annotation}`);
+        log(`${ok ? "ok" : "not ok"} ${this.#testLineNumber} - ${description}${annotation}`);
     }
 
     #debugFailure(failure) {
-        console.log(`  # ${failure.message}`);
+        log(`  # ${failure.message}`);
         if (failure.stack) {
-            console.log("  # === STACK TRACE ===");
-            console.log(failure.stack.replace(/^/mg, "  # "));
-            console.log("  # === END STACK TRACE ===");
+            log("  # === STACK TRACE ===");
+            log(failure.stack.replace(/^/mg, "  # "));
+            log("  # === END STACK TRACE ===");
         }
     }
 
@@ -35,17 +42,17 @@ module.exports = exports = class {
     }
 
     suiteDone(suite) {
-        this.#testLine(suite.status !== "failed", `${suite.fullName} suite level expectations`, this.#skipAnnotation(suite.status));
+        this.#testLine(suite.status !== "failed", `${suite.fullName} passes suite-level expectations`, this.#skipAnnotation(suite.status));
         for (const failure of suite.failedExpectations) {
             this.#debugFailure(failure);
         }
     }
 
     jasmineDone(info) {
-        this.#testLine(info.failedExpectations.length === 0, "global level expectations", "");
+        this.#testLine(info.failedExpectations.length === 0, "passes global-level expectations", "");
         for (const failure of info.failedExpectations) {
             this.#debugFailure(failure);
         }
-        console.log(`1..${this.#testLineNumber}`);
+        log(`1..${this.#testLineNumber}`);
     }
 };
