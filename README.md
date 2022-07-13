@@ -1,4 +1,4 @@
-# jasmine-tap-reporter
+# jasmine-tap-reporter-module
 
 A TAP reporter for the Jasmine test framework.
 
