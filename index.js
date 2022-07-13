@@ -1,4 +1,4 @@
-export default class {
+module.exports = exports = class {
     #testLineNumber = 0;
 
     #testLine(ok, description, annotation) {
