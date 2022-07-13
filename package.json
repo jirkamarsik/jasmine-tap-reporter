@@ -1,6 +1,6 @@
 {
   "name": "jasmine-tap-reporter-module",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A TAP reporter for use with the Jasmine test framework.",
   "main": "index.js",
   "scripts": {
