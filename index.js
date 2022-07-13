@@ -8,21 +8,25 @@ function log(str) {
 module.exports = exports = class {
     #testLineNumber = 0;
 
-    #testLine(ok, description, annotation) {
+    #testLine(ok, description, directive) {
         this.#testLineNumber++;
-        log(`${ok ? "ok" : "not ok"} ${this.#testLineNumber} - ${description}${annotation}`);
+        log(`${ok ? "ok" : "not ok"} ${this.#testLineNumber} - ${description}${directive}`);
+    }
+
+    #commentDiagnostics(diagnostics) {
+        return diagnostics.replace(/^/mg, "  # ");
     }
 
     #debugFailure(failure) {
-        log(`  # ${failure.message}`);
+        log(this.#commentDiagnostics(failure.message));
         if (failure.stack) {
             log("  # === STACK TRACE ===");
-            log(failure.stack.replace(/^/mg, "  # "));
+            log(this.#commentDiagnostics(failure.stack));
             log("  # === END STACK TRACE ===");
         }
     }
 
-    #skipAnnotation(status) {
+    #directiveSkip(status) {
         if (status === "excluded" || status === "pending") {
             return ` # SKIP ${status}`;
         } else {
@@ -35,14 +39,14 @@ module.exports = exports = class {
     }
 
     specDone(spec) {
-        this.#testLine(spec.status !== "failed", spec.fullName, this.#skipAnnotation(spec.status));
+        this.#testLine(spec.status !== "failed", spec.fullName, this.#directiveSkip(spec.status));
         for (const failure of spec.failedExpectations) {
             this.#debugFailure(failure);
         }
     }
 
     suiteDone(suite) {
-        this.#testLine(suite.status !== "failed", `${suite.fullName} passes suite-level expectations`, this.#skipAnnotation(suite.status));
+        this.#testLine(suite.status !== "failed", `${suite.fullName} passes suite-level expectations`, this.#directiveSkip(suite.status));
         for (const failure of suite.failedExpectations) {
             this.#debugFailure(failure);
         }
